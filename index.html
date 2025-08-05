@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Training Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .celebration {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div id="app" class="p-4">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">🏗️ Infrastructure Training Academy</h1>
+                        <p class="text-gray-600">Learn enterprise infrastructure in a fun, interactive way!</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="star" class="w-5 h-5 text-yellow-500"></i>
+                            <span class="font-bold text-lg" id="points">0 points</span>
+                        </div>
+                        <div class="text-sm text-gray-600" id="progress">
+                            0/6 modules completed
+                        </div>
+                        <button onclick="resetProgress()" class="mt-2 text-xs text-blue-600 hover:text-blue-800">
+                            Reset Progress
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Module Navigation -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h2 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                            Training Modules
+                        </h2>
+                        <div class="space-y-2" id="module-nav">
+                            <!-- Module buttons will be generated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-lg shadow-md p-6" id="main-content">
+                        <!-- Content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mt-6 bg-white rounded-lg shadow-md p-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700">Overall Progress</span>
+                    <span class="text-sm text-gray-500" id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progress-bar" class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Celebration Modal -->
+        <div id="celebration" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg p-8 text-center celebration">
+                <i data-lucide="award" class="w-16 h-16 text-yellow-500 mx-auto mb-4"></i>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Congratulations! 🎉</h2>
+                <p class="text-gray-600">You've completed all modules!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Training data
+        const modules = {
+            overview: {
+                title: "Infrastructure Basics",
+                icon: "server",
+                color: "bg-blue-500",
+                content: {
+                    title: "What is Enterprise Infrastructure? 🏗️",
+                    description: "Let's start with the foundation - understanding what keeps your organization running!",
+                    sections: [
+                        {
+                            title: "The Digital Foundation",
+                            content: "Think of enterprise infrastructure like the foundation and utilities of a city. Just as a city needs roads, power grids, and water systems, your organization needs servers, networks, and data systems to function."
+                        },
+                        {
+                            title: "Core Components",
+                            content: "Physical Infrastructure: The actual hardware - servers, storage, networking equipment\n\nVirtual Infrastructure: Virtual machines and containers that run on physical hardware\n\nNetwork Infrastructure: The 'roads' that connect everything together\n\nCloud Infrastructure: Services hosted by providers like AWS, Azure, or Google Cloud\n\nSecurity Infrastructure: The 'locks and alarms' protecting your digital assets"
+                        }
+                    ]
+                },
+                quiz: {
+                    question: "Which analogy best describes enterprise infrastructure?",
+                    options: [
+                        "Like a recipe for cooking",
+                        "Like the foundation and utilities of a city",
+                        "Like a filing cabinet",
+                        "Like a telephone directory"
+                    ],
+                    correct: 1,
+                    explanation: "Just like a city needs roads, power, and water to function, organizations need servers, networks, and data systems as their foundation!"
+                }
+            },
+            security: {
+                title: "Security Vulnerabilities",
+                icon: "shield",
+                color: "bg-red-500",
+                content: {
+                    title: "Keeping the Digital Fort Secure 🛡️",
+                    description: "Security isn't just about passwords - it's about protecting your entire digital ecosystem!",
+                    sections: [
+                        {
+                            title: "Common Security Weak Spots",
+                            content: "Unpatched Systems: Like leaving your house keys in an old lock that everyone knows how to pick\n\nWeak Access Controls: Imagine giving everyone in your building a master key\n\nShadow IT: When departments use unauthorized apps - like having secret entrances nobody monitors"
+                        },
+                        {
+                            title: "The Human Factor",
+                            content: "Did you know? 95% of security breaches involve human error. Social engineering attacks target people because humans are often the weakest link in the security chain. But with proper training (like this!), we become the strongest defense."
+                        }
+                    ]
+                },
+                quiz: {
+                    question: "What percentage of security breaches involve human error?",
+                    options: ["25%", "50%", "75%", "95%"],
+                    correct: 3,
+                    explanation: "95% of security breaches involve human error, which is why training like this is so important!"
+                }
+            },
+            performance: {
+                title: "Performance & Scalability",
+                icon: "rotate-ccw",
+                color: "bg-green-500",
+                content: {
+                    title: "Keeping Things Running Smoothly ⚡",
+                    description: "Performance issues can bring business to a halt. Let's learn how to spot and prevent bottlenecks!",
+                    sections: [
+                        {
+                            title: "Single Points of Failure",
+                            content: "Imagine if your entire office building had only one elevator. If it breaks, nobody can get to upper floors! In IT, we call these 'single points of failure' - critical systems without backup options."
+                        },
+                        {
+                            title: "Resource Constraints",
+                            content: "Think of your computer getting slow when you have too many browser tabs open. The same thing happens to enterprise systems when they don't have enough CPU, memory, or storage to handle the workload."
+                        }
+                    ]
+                },
+                quiz: {
+                    question: "A 'single point of failure' is like:",
+                    options: [
+                        "Having multiple backup generators",
+                        "A building with only one elevator",
+                        "A restaurant with many chefs",
+                        "A car with four tires"
+                    ],
+                    correct: 1,
+                    explanation: "Just like a building with only one elevator creates problems when it breaks, IT systems need redundancy to avoid single points of failure!"
+                }
+            },
+            continuity: {
+                title: "Business Continuity & DR",
+                icon: "alert-triangle",
+                color: "bg-orange-500",
+                content: {
+                    title: "When Things Go Wrong 🚨",
+                    description: "Disasters happen. The key is being prepared and knowing how to recover quickly!",
+                    sections: [
+                        {
+                            title: "Business Continuity vs Disaster Recovery",
+                            content: "Business Continuity: Keeping essential operations running during a crisis (like having emergency lighting during a power outage)\n\nDisaster Recovery: Getting everything back to normal after a major incident (like rebuilding after a fire)"
+                        },
+                        {
+                            title: "RTO and RPO - The Important Numbers",
+                            content: "RTO (Recovery Time Objective): How long can we be down before it seriously hurts the business?\n\nRPO (Recovery Point Objective): How much data can we afford to lose?\n\nExample: If our email system goes down, we might accept 4 hours downtime (RTO) but can't lose more than 15 minutes of emails (RPO)."
+                        }
+                    ]
+                },
+                quiz: {
+                    question: "What does RTO stand for?",
+                    options: [
+                        "Recovery Time Objective",
+                        "Rapid Technology Operation",
+                        "Risk Treatment Option",
+                        "Remote Technical Override"
+                    ],
+                    correct: 0,
+                    explanation: "RTO stands for Recovery Time Objective - how long we can afford to be down before it seriously impacts the business!"
+                }
+            },
+            cloud: {
+                title: "Cloud & Hybrid Risks",
+                icon: "cloud",
+                color: "bg-purple-500",
+                content: {
+                    title: "Navigating the Cloud ☁️",
+                    description: "The cloud offers amazing benefits, but it also brings new challenges we need to understand!",
+                    sections: [
+                        {
+                            title: "Multi-Cloud Complexity",
+                            content: "Using multiple cloud providers is like shopping at different grocery stores - each has different layouts, payment methods, and policies. Managing security and compliance across all of them can be challenging."
+                        },
+                        {
+                            title: "Configuration Drift",
+                            content: "Imagine if everyone in your office rearranged their desk differently every day. Configuration drift is when cloud settings become inconsistent across different environments, making them hard to manage and potentially insecure."
+                        }
+                    ]
+                },
+                quiz: {
+                    question: "Configuration drift in cloud environments is like:",
+                    options: [
+                        "Everyone keeping their desk exactly the same",
+                        "Having a single grocery store for all shopping",
+                        "Everyone rearranging their desk differently each day",
+                        "Using the same password everywhere"
+                    ],
+                    correct: 2,
+                    explanation: "Configuration drift occurs when cloud settings become inconsistent, just like desks arranged differently - making management difficult!"
+                }
+            },
+            monitoring: {
+                title: "Monitoring & Visibility",
+                icon: "book-open",
+                color: "bg-indigo-500",
+                content: {
+                    title: "Keeping Watch 👀",
+                    description: "You can't fix what you can't see! Monitoring gives us the visibility we need to keep systems healthy.",
+                    sections: [
+                        {
+                            title: "Blind Spots",
+                            content: "Imagine driving a car with no speedometer, fuel gauge, or warning lights. That's what running IT infrastructure without proper monitoring feels like - you're flying blind until something breaks."
+                        },
+                        {
+                            title: "Alert Fatigue",
+                            content: "Too many alerts is like a car alarm that goes off every time someone walks by - eventually, people stop paying attention. Good monitoring systems send meaningful alerts that people actually act on."
+                        }
+                    ]
+                },
+                quiz: {
+                    question: "Alert fatigue occurs when:",
+                    options: [
+                        "Systems never send any alerts",
+                        "Alerts are too quiet to hear",
+                        "Too many false alerts cause people to ignore them",
+                        "Alerts only work during business hours"
+                    ],
+                    correct: 2,
+                    explanation: "Alert fatigue happens when there are so many false or minor alerts that people start ignoring them - like a car alarm that goes off too often!"
+                }
+            }
+        };
+
+        // State management
+        let currentModule = 'overview';
+        let completedModules = new Set();
+        let currentQuiz = null;
+        let quizAnswers = {};
+        let quizResults = {};
+        let userPoints = 0;
+
+        // Initialize the app
+        function init() {
+            renderModuleNav();
+            renderContent();
+            lucide.createIcons();
+        }
+
+        function renderModuleNav() {
+            const nav = document.getElementById('module-nav');
+            nav.innerHTML = '';
+            
+            Object.entries(modules).forEach(([key, module]) => {
+                const button = document.createElement('button');
+                button.className = `w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all ${
+                    currentModule === key 
+                        ? 'bg-blue-100 border-l-4 border-blue-500' 
+                        : 'hover:bg-gray-50'
+                }`;
+                button.onclick = () => setCurrentModule(key);
+                
+                button.innerHTML = `
+                    <div class="p-2 rounded-lg text-white ${module.color}">
+                        <i data-lucide="${module.icon}" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-sm">${module.title}</div>
+                        ${completedModules.has(key) ? '<i data-lucide="check-circle" class="w-4 h-4 text-green-500 mt-1"></i>' : ''}
+                    </div>
+                `;
+                
+                nav.appendChild(button);
+            });
+        }
+
+        function setCurrentModule(moduleKey) {
+            currentModule = moduleKey;
+            currentQuiz = null;
+            renderModuleNav();
+            renderContent();
+            lucide.createIcons();
+        }
+
+        function renderContent() {
+            const content = document.getElementById('main-content');
+            const moduleData = modules[currentModule];
+            
+            if (currentQuiz) {
+                content.innerHTML = `
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Quick Knowledge Check! 🧠</h2>
+                        <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                            <p class="text-lg font-medium text-gray-800 mb-6">${currentQuiz.question}</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="quiz-options">
+                                ${currentQuiz.options.map((option, index) => `
+                                    <button onclick="handleQuizAnswer(${index})" 
+                                            class="p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left">
+                                        ${option}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div id="quiz-result"></div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-3 rounded-lg text-white ${moduleData.color}">
+                                <i data-lucide="${moduleData.icon}" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">${moduleData.content.title}</h2>
+                                <p class="text-gray-600">${moduleData.content.description}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6 mb-8">
+                            ${moduleData.content.sections.map(section => `
+                                <div class="bg-gray-50 rounded-lg p-6">
+                                    <h3 class="text-xl font-semibold text-gray-800 mb-3">${section.title}</h3>
+                                    <div class="text-gray-700 whitespace-pre-line leading-relaxed">${section.content}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="text-center">
+                            <button onclick="startQuiz()" 
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+                                    ${completedModules.has(currentModule) ? 'disabled' : ''}>
+                                ${completedModules.has(currentModule) ? 'Module Completed! ✅' : 'Take Knowledge Check 🧠'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function startQuiz() {
+            currentQuiz = modules[currentModule].quiz;
+            renderContent();
+            lucide.createIcons();
+        }
+
+        function handleQuizAnswer(answerIndex) {
+            const isCorrect = answerIndex === currentQuiz.correct;
+            quizAnswers[currentModule] = answerIndex;
+            quizResults[currentModule] = isCorrect;
+            
+            const resultDiv = document.getElementById('quiz-result');
+            const optionsDiv = document.getElementById('quiz-options');
+            
+            // Disable all buttons
+            optionsDiv.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            
+            if (isCorrect) {
+                userPoints += 10;
+                completedModules.add(currentModule);
+                resultDiv.innerHTML = `
+                    <div class="p-4 rounded-lg bg-green-50 border border-green-200">
+                        <div class="flex items-center justify-center gap-2 mb-3">
+                            <i data-lucide="check-circle" class="w-6 h-6 text-green-500"></i>
+                            <span class="font-bold text-green-700">Correct! +10 points</span>
+                        </div>
+                        <p class="text-gray-700">${currentQuiz.explanation}</p>
+                    </div>
+                `;
+                
+                if (completedModules.size === Object.keys(modules).length) {
+                    setTimeout(showCelebration, 1000);
+                }
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="p-4 rounded-lg bg-red-50 border border-red-200">
+                        <div class="flex items-center justify-center gap-2 mb-3">
+                            <i data-lucide="x-circle" class="w-6 h-6 text-red-500"></i>
+                            <span class="font-bold text-red-700">Not quite right</span>
+                        </div>
+                        <p class="text-gray-700">${currentQuiz.explanation}</p>
+                    </div>
+                `;
+            }
+            
+            updateProgress();
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                currentQuiz = null;
+                renderContent();
+                renderModuleNav();
+                lucide.createIcons();
+            }, 3000);
+        }
+
+        function updateProgress() {
+            document.getElementById('points').textContent = `${userPoints} points`;
+            document.getElementById('progress').textContent = `${completedModules.size}/${Object.keys(modules).length} modules completed`;
+            
+            const percentage = Math.round((completedModules.size / Object.keys(modules).length) * 100);
+            document.getElementById('progress-percent').textContent = `${percentage}%`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function showCelebration() {
+            document.getElementById('celebration').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('celebration').classList.add('hidden');
+            }, 3000);
+        }
+
+        function resetProgress() {
+            completedModules.clear();
+            quizAnswers = {};
+            quizResults = {};
+            userPoints = 0;
+            currentQuiz = null;
+            currentModule = 'overview';
+            updateProgress();
+            renderModuleNav();
+            renderContent();
+            lucide.createIcons();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
+    </script>
+</body>
+</html>
